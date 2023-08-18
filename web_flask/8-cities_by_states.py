@@ -10,14 +10,14 @@ app = Flask(__name__)
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
     """List all cities by states"""
-    state = storage.all(State)
-    return render_template('8-cities_by_states.html', data=state)
+    states = storage.all(State).values()
+    return render_template('8-cities_by_states.html', states=states)
 
 
 @app.teardown_appcontext
 def remove_session(execption):
     """Remove the current SQLAlchemy Session"""
-    return storage.close()
+    storage.close()
 
 
 if __name__ == "__main__":
