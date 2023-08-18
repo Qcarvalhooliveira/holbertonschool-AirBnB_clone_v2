@@ -2,7 +2,6 @@
 """script that starts a Flask web application"""
 from flask import Flask, render_template
 from models.state import State
-from models.city import City
 from models import storage
 
 app = Flask(__name__)
@@ -11,11 +10,8 @@ app = Flask(__name__)
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
     """List all cities by states"""
-    states = storage.all(State).values()
-    result = []
-    for state in sorted(states, key=lambda x: x.name):
-        result.append([state, state.cities])
-    return render_template('8-cities_by_states.html', result=result)
+    state = storage.all(State).values()
+    return render_template('8-cities_by_states.html', states=state)
 
 
 @app.teardown_appcontext
