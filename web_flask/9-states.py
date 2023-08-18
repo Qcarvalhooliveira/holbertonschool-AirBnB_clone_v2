@@ -26,7 +26,7 @@ def states_id(id):
 
 
 @app.teardown_appcontext
-def teardown(exception):
+def remove_session(exception):
     """closing storage"""
     storage.close()
 
