@@ -10,9 +10,6 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-import shlex
-from datetime import datetime
-import json
 
 
 class HBNBCommand(cmd.Cmd):
@@ -117,33 +114,29 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, line):
-        """Creates a new instance of BaseModel, saves it
-        Exceptions:
-            SyntaxError: when there is no args given
-            NameError: when there is no object taht has the name
-        """
-        try:
-            if not line:
-                raise SyntaxError()
-            my_list = line.split(" ")
-            obj = eval("{}()".format(my_list[0]))
-            print("{}".format(obj.id))
-            for num in range(1, len(my_list)):
-                my_list[num] = my_list[num].replace('=', ' ')
-                attributes = shlex.split(my_list[num])
-                attributes[1] = attributes[1].replace('_', ' ')
-                try:
-                    var = eval(attributes[1])
-                    attributes[1] = var
-                except ValueError:
-                    pass
-                if type(attributes[1]) is not tuple:
-                    setattr(obj, attributes[0], attributes[1])
-            obj.save()
-        except SyntaxError:
+        """Creates an object of any class"""
+        args = args.split(" ")
+        if not args:
             print("** class name missing **")
-        except NameError:
+            return
+        elif args[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
+            return
+
+        new_instance = HBNBCommand.classes[args[0]]()
+        for i in range(1, len(args)):
+            try:
+                args_1 = args[i].split("=")
+                key = args_1[0]
+                value = args_1[1]
+                value = value.replace("_", " ")
+                value = value.replace('\"', '')
+                if type(value) in (str, float, int):
+                    setattr(new_instance, key, value)
+            except Exception:
+                continue
+        print(new_instance.id)
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """

@@ -2,14 +2,12 @@
 """class file DBStorage"""
 
 from os import getenv
-import models
 import sqlalchemy
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
 
+import models
 from models.base_model import BaseModel, Base
-from models.amenity import Amenity
 from models.city import City
 from models.place import Place
 from models.review import Review
@@ -22,34 +20,33 @@ class DBStorage:
 
     __engine = None
     __session = None
+    all_classes = ["State", "City", "User", "Place", "Review"]
 
     def __init__(self):
         """initiate a dbstorage"""
-        self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".format(
-            getenv("HBNB_MYSQL_USER"),
-            getenv("HBNB_MYSQL_PWD"),
-            getenv("HBNB_MYSQL_HOST"),
-            getenv("HBNB_MYSQL_DB")),
-            pool_pre_ping=True)
-
-        if getenv("HBNB_ENV") == "test":
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
+                                      format(getenv('HBNB_MYSQL_USER'),
+                                             getenv('HBNB_MYSQL_PWD'),
+                                             getenv('HBNB_MYSQL_HOST'),
+                                             getenv('HBNB_MYSQL_DB')),
+                                      pool_pre_ping=True)
+        if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """Return a new dictionary with all objects depending of the class name"""
+        """Return a new dictionary with all objects depending
+        of the class name"""
         new_dict = {}
-        all_class = [City, State, User, Place, Review, Amenity]
-        list_objects = []
         if cls is None:
-            for i in range(len(all_class)):
-                list_objects += self.__session.query(all_class[i]).all()
+            for i in self.all_class:
+                i = eval(i)
+                for instance in self.__session.query(i).all():
+                    key = instance.__class__.__name__ + '.' + instance.id
+                    dict_new[key] = instance
         else:
-            list_objects += self.__session.query(cls).all()
-
-        for element in list_objects:
-            key = "{}.{}".format(element.__class__.__name__, element.id)
-            new_dict[key] = element
-        return new_dict
+            for instance in self.__session.query(cls).all():
+                key = instance.__class__.__name__+'.' + instance.id
+                dict_new[key] = instance
 
     def new(self, obj):
         """adds the object to the current database session"""
@@ -68,11 +65,12 @@ class DBStorage:
         """create all tables in the database and the current
            database session"""
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
-        Session = scoped_session(session_factory)
+        session_db = sessionmaker(bind=self.__engine,
+                                  expire_on_commit=False)
+        Session = scoped_session(session_db)
         self.__session = Session()
 
     def close(self):
         """remove method: remove the session"""
+        self.reload()
         self.__session.close()

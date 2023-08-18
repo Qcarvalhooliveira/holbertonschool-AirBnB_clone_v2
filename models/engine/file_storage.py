@@ -1,13 +1,6 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-from models.base_model import BaseModel
-from models.user import User
-from models.place import Place
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
 
 
 class FileStorage:
@@ -19,12 +12,13 @@ class FileStorage:
         """Returns a dictionary of models currently in storage"""
         if cls is None:
             return FileStorage.__objects
-        else:
-            new_dict = {}
-            for key in FileStorage.__objects:
-                if FileStorage.__objects[key].__class__ == cls:
-                    new_dict[key] = FileStorage.__objects[key]
-            return new_dict
+        new_dict = {}
+        name_cls = cls.__name__
+        key = FileStorage.__objects.keys()
+        for i in key:
+            if name_cls == i.split(".")[0]:
+                new_dict[i] = FileStorage.__objects[i]
+        return new_dict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -41,6 +35,13 @@ class FileStorage:
 
     def reload(self):
         """Loads storage dictionary from file"""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
         classes = {
             'BaseModel': BaseModel, 'User': User, 'Place': Place,
             'State': State, 'City': City, 'Amenity': Amenity,
@@ -57,9 +58,9 @@ class FileStorage:
 
     def delete(self, obj=None):
         """function that deletes an object"""
-        if obj:
-            del (FileStorage.__objects["{}.{}".format
-                                       (obj.__class__.__name__, obj.id)])
+        if obj is not None:
+            key = obj.__class__.__name__ + "." + obj.id
+            del (FileStorage.__objects[key])
 
     def close(self):
         """ Function that call the reload method """

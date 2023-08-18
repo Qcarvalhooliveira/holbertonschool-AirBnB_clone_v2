@@ -1,29 +1,32 @@
 #!/usr/bin/python3
 """This is the state class"""
-
+import models
 from models.base_model import BaseModel, Base
+from models.city import City
+import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from models.city import City
-import models
-from os import getenv
+from sqlalchemy.ext.declarative import declarative_base
 
 
 class State(BaseModel, Base):
     """This is the class for state"""
 
     __tablename__ = 'states'
-
     name = Column(String(128), nullable=False)
-    id = Column(String(60), primary_key=True, nullable=False)
-    cities = relationship('City', backref='state', cascade='delete')
+    cities = relationship('City', backref='state')
 
-    if getenv("HBNB_TYPE_STORAGE3") != 'db':
+    def __init__(self, *args, **kwargs):
+        """Inicialization inherited """
+        super().__init__(*args, **kwargs)
+
+    if models.storage_type != 'db':
         @property
         def cities(self):
             """Gets the list of City instances with state_id=State.id"""
             city_list = []
-            for city in list(models.storage.all(City).values()):
-                if city.state_id == self.id:
-                    city_list.append(city)
+            all_city = models.storage.all(City)
+            for value in all_city.values():
+                if value.state_id == self.id:
+                    city_list.append(value)
             return city_list
