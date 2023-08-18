@@ -38,15 +38,16 @@ class DBStorage:
         of the class name"""
         new_dict = {}
         if cls is None:
-            for i in self.all_class:
-                i = eval(i)
-                for instance in self.__session.query(i).all():
+            for class_name in self.all_classes:
+                cls = getattr(models, class_name)
+                for instance in self.__session.query(cls).all():
                     key = instance.__class__.__name__ + '.' + instance.id
-                    dict_new[key] = instance
+                    new_dict[key] = instance
         else:
             for instance in self.__session.query(cls).all():
-                key = instance.__class__.__name__+'.' + instance.id
-                dict_new[key] = instance
+                key = instance.__class__.__name__ + '.' + instance.id
+                new_dict[key] = instance
+        return new_dict
 
     def new(self, obj):
         """adds the object to the current database session"""
@@ -63,14 +64,12 @@ class DBStorage:
 
     def reload(self):
         """create all tables in the database and the current
-           database session"""
+        database session"""
         Base.metadata.create_all(self.__engine)
         session_db = sessionmaker(bind=self.__engine,
                                   expire_on_commit=False)
-        Session = scoped_session(session_db)
-        self.__session = Session()
+        self.__session = scoped_session(session_db)
 
     def close(self):
         """remove method: remove the session"""
-        self.reload()
         self.__session.close()
