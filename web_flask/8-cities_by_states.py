@@ -10,8 +10,8 @@ app = Flask(__name__)
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
     """List all cities by states"""
-    state = storage.all(State).values()
-    return render_template('8-cities_by_states.html', states=state)
+    state = storage.all(State)
+    return render_template('8-cities_by_states.html', data=state)
 
 
 @app.teardown_appcontext
@@ -21,4 +21,4 @@ def remove_session(execption):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
