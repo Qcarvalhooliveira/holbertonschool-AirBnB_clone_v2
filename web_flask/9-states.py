@@ -28,7 +28,7 @@ def states_id(id):
 @app.teardown_appcontext
 def teardown(execption):
     """closing storage"""
-    return storage.close()
+    storage.close()
 
 
 if __name__ == "__main__":
