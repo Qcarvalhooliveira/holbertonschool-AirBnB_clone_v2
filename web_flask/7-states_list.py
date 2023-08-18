@@ -17,7 +17,7 @@ def state_list():
 @app.teardown_appcontext
 def remove_session(execption):
     """Remove the current SQLAlchemy Session"""
-    return storage.close()
+    storage.close()
 
 
 if __name__ == "__main__":
