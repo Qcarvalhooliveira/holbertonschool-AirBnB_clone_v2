@@ -8,28 +8,28 @@ app = Flask(__name__)
 
 
 @app.route("/states", strict_slashes=False)
-def state_list():
+def states():
     """Display a HTML page of state"""
     states = storage.all(State).values()
-    return render_template("7-states_list.html", states=states)
+    return render_template('7-states_list.html', states=states)
 
 
-@app.route("/states/<id>")
+@app.route("/states/<id>", strict_slashes=False)
 def states_id(id):
     """show id for the states"""
     states = storage.all(State).values()
     for state in states:
         if state.id == id:
-            return render_template("9-states.html", state=state,
+            return render_template('9-states.html', state=state,
                                    id=True)
-    return render_template("9-states.html")
+    return render_template('9-states.html')
 
 
 @app.teardown_appcontext
-def teardown(execption):
+def teardown(exception):
     """closing storage"""
     storage.close()
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port='5000')
